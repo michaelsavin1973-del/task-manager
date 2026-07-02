@@ -112,3 +112,6 @@ def get_task(task_id):
     return jsonify(task)
 
 
+@task_bp.route("/")
+def home():
+    return {"status": "ok"}
