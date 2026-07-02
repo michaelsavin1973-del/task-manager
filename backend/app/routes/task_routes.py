@@ -6,21 +6,18 @@ task_bp = Blueprint("tasks", __name__)
 
 logger = logging.getLogger(__name__)
 
-
 # ---------------------------
-# HEALTHCHECK (DEVOPS MUST)
+# HEALTHCHECK
 # ---------------------------
 @task_bp.route("/health", methods=["GET"])
 def health():
-    return jsonify({
-        "status": "ok"
-    }), 200
+    return jsonify({"status": "ok"}), 200
 
 
 # ---------------------------
-# GET TASKS (with safe response)
+# GET ALL TASKS
 # ---------------------------
-@task_bp.route("/api/tasks")
+@task_bp.route("/api/tasks", methods=["GET"])
 def get_tasks():
     try:
         logger.info("GET /api/tasks called")
@@ -41,14 +38,26 @@ def get_tasks():
 
 
 # ---------------------------
-# CREATE TASK (production safe)
+# GET SINGLE TASK
 # ---------------------------
-@task_bp.route("/api/tasks")
+@task_bp.route("/api/tasks/<int:task_id>", methods=["GET"])
+def get_task(task_id):
+    task = task_service.get_task(task_id)
+
+    if not task:
+        return jsonify({"error": "Task not found"}), 404
+
+    return jsonify(task), 200
+
+
+# ---------------------------
+# CREATE TASK
+# ---------------------------
+@task_bp.route("/api/tasks", methods=["POST"])
 def create_task():
     try:
         data = request.get_json()
 
-        # ---- validation ----
         if not data:
             return jsonify({
                 "data": None,
@@ -65,7 +74,6 @@ def create_task():
 
         logger.info(f"Creating task: {title}")
 
-        # ---- service layer ----
         new_task = task_service.create_task(title=title)
 
         return jsonify({
@@ -73,24 +81,23 @@ def create_task():
             "error": None
         }), 201
 
-    except Exception as e:
+    except Exception:
         logger.exception("Failed to create task")
         return jsonify({
             "data": None,
             "error": "Failed to create task"
         }), 500
-@task_bp.route("/api/tasks", methods=["DELETE"])
-def delete_task(task_id):
-    result = task_service.delete_task(task_id)
 
-    if "error" in result:
-        return jsonify(result), 404
 
-    return jsonify(result), 200
-
-@task_bp.route("/api/tasks", methods=["PUT"])
+# ---------------------------
+# UPDATE TASK
+# ---------------------------
+@task_bp.route("/api/tasks/<int:task_id>", methods=["PUT"])
 def update_task(task_id):
     data = request.get_json()
+
+    if not data:
+        return jsonify({"error": "Request body is required"}), 400
 
     result = task_service.update_task(
         task_id,
@@ -101,17 +108,25 @@ def update_task(task_id):
     if not result:
         return jsonify({"error": "Task not found"}), 404
 
-    return jsonify(result)
-@task_bp.route("/api/tasks", methods=["GET"])
-def get_task(task_id):
-    task = task_service.get_task(task_id)
+    return jsonify(result), 200
 
-    if not task:
+
+# ---------------------------
+# DELETE TASK
+# ---------------------------
+@task_bp.route("/api/tasks/<int:task_id>", methods=["DELETE"])
+def delete_task(task_id):
+    result = task_service.delete_task(task_id)
+
+    if not result:
         return jsonify({"error": "Task not found"}), 404
 
-    return jsonify(task)
+    return jsonify(result), 200
 
 
+# ---------------------------
+# ROOT
+# ---------------------------
 @task_bp.route("/")
 def home():
-    return {"status": "ok"}
+    return jsonify({"status": "ok"}), 200
