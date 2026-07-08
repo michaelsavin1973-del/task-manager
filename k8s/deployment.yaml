@@ -19,6 +19,7 @@ spec:
     spec:
       containers:
       - name: nginx
-        image: nginx
+        image: task-manager-frontend:latest
+        imagePullPolicy: Never
         ports:
         - containerPort: 80

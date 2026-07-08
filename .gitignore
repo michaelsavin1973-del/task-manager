@@ -4,3 +4,7 @@ __pycache__/
 minikube-linux-amd64
 *.save
 .env
+*.tar.gz
+venv/
+__pycache__/
+*.pyc
