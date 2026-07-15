@@ -1,0 +1,25 @@
+backend:
+  image: task-manager-backend
+  tag: latest
+  replicas: 2
+  port: 5000
+
+  service:
+    type: ClusterIP
+    port: 5000
+
+  resources:
+    requests:
+      cpu: 100m
+      memory: 128Mi
+
+    limits:
+      cpu: 500m
+      memory: 512Mi
+
+postgres:
+  image: postgres:16
+  database: taskdb
+  user: admin
+  password: admin123
+  storage: 1Gi

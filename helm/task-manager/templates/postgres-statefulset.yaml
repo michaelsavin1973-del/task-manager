@@ -1,0 +1,54 @@
+apiVersion: apps/v1
+kind: StatefulSet
+
+metadata:
+  name: {{ include "task-manager.fullname" . }}-postgres
+  namespace: {{ .Release.Namespace }}
+
+  labels:
+    app: postgres
+
+spec:
+  serviceName: {{ include "task-manager.fullname" . }}-postgres
+
+  replicas: 1
+
+  selector:
+    matchLabels:
+      app: postgres
+
+  template:
+    metadata:
+      labels:
+        app: postgres
+
+    spec:
+      containers:
+        - name: postgres
+
+          image: "{{ .Values.postgres.image }}"
+
+          ports:
+            - containerPort: 5432
+
+          env:
+            - name: POSTGRES_DB
+              value: {{ .Values.postgres.database }}
+
+            - name: POSTGRES_USER
+              value: {{ .Values.postgres.user }}
+
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "task-manager.fullname" . }}-postgres-secret
+                  key: POSTGRES_PASSWORD
+
+          volumeMounts:
+            - name: postgres-data
+              mountPath: /var/lib/postgresql/data
+
+      volumes:
+        - name: postgres-data
+          persistentVolumeClaim:
+            claimName: {{ include "task-manager.fullname" . }}-postgres-pvc

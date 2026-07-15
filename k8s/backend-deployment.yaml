@@ -3,7 +3,10 @@ kind: Deployment
 
 metadata:
   name: task-manager-backend
+  namespace: task-manager
 
+  annotations:
+    kubernetes.io/change-cause: "Added resource requests and limits"
 spec:
   replicas: 2
 
@@ -22,6 +25,15 @@ spec:
         image: task-manager-backend:latest
         imagePullPolicy: Never
 
+        resources:
+          requests:
+            cpu: "100m"
+            memory: "128Mi"
+
+          limits:
+            cpu: "500m"
+            memory: "512Mi"
+
         ports:
         - containerPort: 5000
 
@@ -39,18 +51,14 @@ spec:
           initialDelaySeconds: 5
           periodSeconds: 5
 
-        env:
-        - name: DB_USER
-          value: admin
+        envFrom:
+        - configMapRef:
+            name: backend-config
 
+        env:
         - name: DB_PASSWORD
           valueFrom:
             secretKeyRef:
               name: postgres-secret
               key: POSTGRES_PASSWORD
 
-        - name: DB_HOST
-          value: postgres-service
-
-        - name: DB_NAME
-          value: taskdb

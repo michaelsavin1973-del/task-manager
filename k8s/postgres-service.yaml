@@ -3,6 +3,7 @@ kind: Service
 
 metadata:
   name: postgres-service
+  namespace: task-manager
 
 spec:
   selector:

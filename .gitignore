@@ -123,3 +123,5 @@ secrets/
 *.tmp
 *.bak
 *.backup
+# Kubernetes secrets
+**/*secret.yaml

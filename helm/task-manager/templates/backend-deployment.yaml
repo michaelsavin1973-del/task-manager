@@ -1,0 +1,62 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "task-manager.fullname" . }}-backend
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app: task-manager-backend
+
+spec:
+  replicas: {{ .Values.backend.replicas }}
+
+  selector:
+    matchLabels:
+      app: task-manager-backend
+
+  template:
+    metadata:
+      labels:
+        app: task-manager-backend
+
+    spec:
+      containers:
+        - name: backend
+          image: "{{ .Values.backend.image }}:{{ .Values.backend.tag }}"
+          imagePullPolicy: Never
+
+          ports:
+            - containerPort: {{ .Values.backend.port }}
+
+          env:
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "task-manager.fullname" . }}-postgres-secret
+                  key: POSTGRES_PASSWORD
+
+          envFrom:
+            - configMapRef:
+                name: {{ include "task-manager.fullname" . }}-backend-config
+
+          resources:
+            requests:
+              cpu: {{ .Values.backend.resources.requests.cpu }}
+              memory: {{ .Values.backend.resources.requests.memory }}
+
+            limits:
+              cpu: {{ .Values.backend.resources.limits.cpu }}
+              memory: {{ .Values.backend.resources.limits.memory }}
+
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: {{ .Values.backend.port }}
+            initialDelaySeconds: 5
+            periodSeconds: 5
+
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: {{ .Values.backend.port }}
+            initialDelaySeconds: 10
+            periodSeconds: 10

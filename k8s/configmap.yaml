@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: ConfigMap
+
+metadata:
+  name: backend-config
+  namespace: task-manager
+
+data:
+  DB_USER: admin
+  DB_HOST: postgres-service
+  DB_NAME: taskdb

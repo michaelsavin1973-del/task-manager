@@ -15,13 +15,17 @@
 <script>
 async function loadTasks() {
   const res = await fetch("/api/tasks");
-  const data = await res.json();
+
+  const response = await res.json();
+  const data = response.data;
 
   const list = document.getElementById("list");
   list.innerHTML = "";
 
   data.forEach(t => {
-    const li = document.createElement("li");
+
+
+   const li = document.createElement("li");
     li.innerHTML = `${t[1]} 
       <button onclick="deleteTask(${t[0]})">X</button>`;
     list.appendChild(li);
