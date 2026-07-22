@@ -15,15 +15,13 @@ services:
     restart: always
     env_file:
       - .env
-    environment:
-      DB_HOST: db
     depends_on:
       db:
-        condition: service_healthy      
+        condition: service_healthy
     ports:
       - "5000:5000"
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:5000/api/health"]
+      test: ["CMD", "curl", "-f", "http://localhost:5000/health"]
       interval: 30s
       timeout: 10s
       retries: 3

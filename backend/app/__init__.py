@@ -1,8 +1,10 @@
 import os
 
 from flask import Flask
-
+from flask_migrate import Migrate
 from app.db.db import db
+
+migrate = Migrate()
 
 
 def create_app():
@@ -22,14 +24,11 @@ def create_app():
     app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
     db.init_app(app)
+    migrate.init_app(app, db)
 
-    # импортируем модели после init_app
     from app.models.task import Task
-
-    with app.app_context():
-        db.create_all()
-
     from app.routes.task_routes import task_bp
+
     app.register_blueprint(task_bp)
 
     return app
