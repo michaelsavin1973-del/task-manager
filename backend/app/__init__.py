@@ -26,7 +26,7 @@ def create_app():
     db.init_app(app)
     migrate.init_app(app, db)
 
-    from app.models.task import Task
+    from app.models.task import Task  # noqa: F401
     from app.routes.task_routes import task_bp
 
     app.register_blueprint(task_bp)

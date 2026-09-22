@@ -6,6 +6,7 @@ task_bp = Blueprint("tasks", __name__)
 
 logger = logging.getLogger(__name__)
 
+
 # ---------------------------
 # HEALTHCHECK
 # ---------------------------
@@ -29,7 +30,7 @@ def get_tasks():
             "error": None
         }), 200
 
-    except Exception as e:
+    except Exception:
         logger.exception("Failed to fetch tasks")
         return jsonify({
             "data": None,
