@@ -44,9 +44,10 @@ jobs:
           password: ${{ secrets.DOCKER_PASSWORD }}
 
       - name: Build image
-        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-        run: docker build -t ${{ secrets.DOCKER_USERNAME }}/task-manager-backend:${{ github.sha }} ./backend
+        run: docker build -t task-manager-backend:${{ github.sha }} ./backend
 
       - name: Push image
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-        run: docker push ${{ secrets.DOCKER_USERNAME }}/task-manager-backend:${{ github.sha }}
+        run: |
+          docker tag task-manager-backend:${{ github.sha }} ${{ secrets.DOCKER_USERNAME }}/task-manager-backend:${{ github.sha }}
+          docker push ${{ secrets.DOCKER_USERNAME }}/task-manager-backend:${{ github.sha }}
